@@ -5,17 +5,20 @@ import React, { useRef, useEffect } from 'react'
 const Hero = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const gsapRef = useRef<any>(null)
-  const [useFallback, setUseFallback] = React.useState(false)
+  const [videoReady, setVideoReady] = React.useState(false)
 
   useEffect(() => {
     if (!videoRef.current) return
     videoRef.current.play().catch(() => {})
   }, [])
 
-  const handleVideoError = () => setUseFallback(true)
+  const handleVideoError = (e?: any) => {
+    console.error('Video error:', e);
+    // keep videoReady false so it doesn't show a partially loaded frame
+    setVideoReady(false);
+  }
 
   const handleCanPlay = () => {
-    setUseFallback(false)
     if (videoRef.current) videoRef.current.play().catch(() => {})
   }
 
@@ -76,30 +79,21 @@ const Hero = () => {
       maxHeight: '100vh' 
     }}>
       {/* Video Background */}
-      {!useFallback ? (
-        <video
-          ref={videoRef}
-          poster="/videos/video.gif"
-          style={fullScreenMediaStyle}
-          src="/videos/mirai_home1.mov"
-          autoPlay 
-          muted 
-          loop 
-          playsInline 
-          preload="auto"
-          onError={handleVideoError}
-          onCanPlay={handleCanPlay}
-        >
-          <source src="/videos/mirai_home1.mov" type="video/quicktime" />
-          <source src="/videos/mirai_home1.mp4" type="video/mp4" />
-        </video>
-      ) : (
-        <img
-          src="/videos/video.gif"
-          alt="Mirai preview"
-          style={fullScreenMediaStyle}
-        />
-      )}
+      <video
+        ref={videoRef}
+        style={{ ...fullScreenMediaStyle, opacity: videoReady ? 1 : 0, transition: 'opacity 300ms ease' }}
+        src="/videos/mirai_home1.mov"
+        autoPlay 
+        muted 
+        loop 
+        playsInline 
+        preload="auto"
+        onError={handleVideoError}
+        onCanPlay={(e) => { handleCanPlay(); setVideoReady(true); }}
+        onLoadedData={() => setVideoReady(true)}
+      >
+        <source src="/videos/mirai_home1.mov" type="video/quicktime" />
+      </video>
 
       {/* Optional: Subtle Vignette to help the video blend into the next section */}
       <div style={{
