@@ -6,15 +6,37 @@ const Hero = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const gsapRef = useRef<any>(null)
   const [videoReady, setVideoReady] = React.useState(false)
+  const [triedLocalFallback, setTriedLocalFallback] = React.useState(false) 
 
   useEffect(() => {
     if (!videoRef.current) return
     videoRef.current.play().catch(() => {})
   }, [])
 
-  const handleVideoError = (e?: any) => {
+  const handleVideoError = async (e?: any) => {
     console.error('Video error:', e);
-    // keep videoReady false so it doesn't show a partially loaded frame
+    if (videoRef.current && !triedLocalFallback) {
+      setTriedLocalFallback(true);
+      const trySources = [
+        'https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.webm',
+        'https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.mp4',
+        '/videos/mirai_home1.webm',
+        '/videos/mirai_home1.mp4'
+      ];
+      for (const src of trySources) {
+        try {
+          videoRef.current.src = src;
+          videoRef.current.load();
+          await videoRef.current.play().then(() => {
+            setVideoReady(true);
+          }).catch(() => {});
+          if (!videoRef.current.paused) return; // success
+        } catch (err) {
+          // try next source
+        }
+      }
+    }
+    // final fallback: keep it hidden
     setVideoReady(false);
   }
 
@@ -82,6 +104,7 @@ const Hero = () => {
       <video
         ref={videoRef}
         style={{ ...fullScreenMediaStyle, opacity: videoReady ? 1 : 0, transition: 'opacity 300ms ease' }}
+        crossOrigin="anonymous"
         autoPlay 
         muted 
         loop 
@@ -94,6 +117,9 @@ const Hero = () => {
         <source src="https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.webm" type="video/webm" />
         <source src="https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.mp4" type="video/mp4" />
         {/* Browser will pick the first supported format */}
+        <p style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+          Video not supported — <a href="/videos/mirai_home1.mp4" style={{ color: '#fff', textDecoration: 'underline' }}>download</a>
+        </p>
       </video>
 
       {/* Optional: Subtle Vignette to help the video blend into the next section */}
