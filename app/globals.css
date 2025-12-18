@@ -1,26 +1,21 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Set site-wide font to Century Gothic (system font) */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+	font-family: "Century Gothic", "CenturyGothic", Arial, sans-serif;
 }
+
+/* Use Magra for headings (loaded via next/font/google in layout.tsx). */
+h1,h2,h3,h4,h5,h6{
+	font-family: var(--font-magra, "Magra", "Century Gothic", Arial, sans-serif);
+}
+
+/* Hide scrollbars for elements (panels) */
+.hide-scrollbar {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+	display: none; /* Chrome, Safari and Opera */
+}
+
