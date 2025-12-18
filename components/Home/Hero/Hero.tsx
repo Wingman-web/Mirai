@@ -6,39 +6,11 @@ const Hero = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const gsapRef = useRef<any>(null)
   const [videoReady, setVideoReady] = React.useState(false)
-  const [triedLocalFallback, setTriedLocalFallback] = React.useState(false) 
 
   useEffect(() => {
     if (!videoRef.current) return
     videoRef.current.play().catch(() => {})
   }, [])
-
-  const handleVideoError = async (e?: any) => {
-    console.error('Video error:', e);
-    if (videoRef.current && !triedLocalFallback) {
-      setTriedLocalFallback(true);
-      const trySources = [
-        'https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.webm',
-        'https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.mp4',
-        '/videos/mirai_home1.webm',
-        '/videos/mirai_home1.mp4'
-      ];
-      for (const src of trySources) {
-        try {
-          videoRef.current.src = src;
-          videoRef.current.load();
-          await videoRef.current.play().then(() => {
-            setVideoReady(true);
-          }).catch(() => {});
-          if (!videoRef.current.paused) return; // success
-        } catch (err) {
-          // try next source
-        }
-      }
-    }
-    // final fallback: keep it hidden
-    setVideoReady(false);
-  }
 
   const handleCanPlay = () => {
     if (videoRef.current) videoRef.current.play().catch(() => {})
@@ -69,20 +41,40 @@ const Hero = () => {
     }
   }
 
+  // Set video sources immediately on mount
+  useEffect(() => {
+    if (!videoRef.current) return
+    const videoEl = videoRef.current
+
+    const sources = [
+      { src: 'https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.webm', type: 'video/webm' },
+      { src: 'https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.mp4', type: 'video/mp4' }
+    ]
+
+    const fallback = videoEl.querySelector('p')
+
+    sources.forEach(({ src, type }) => {
+      const srcEl = document.createElement('source')
+      srcEl.src = src
+      srcEl.type = type
+      videoEl.insertBefore(srcEl, fallback || null)
+    })
+
+    videoEl.load()
+    videoEl.play().catch(() => {})
+  }, [])
+
   // DESKTOP OPTIMIZED STYLE
   const fullScreenMediaStyle: React.CSSProperties = {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    // We use 101% to create a tiny "overshoot" 
-    // This kills the 1px black line caused by sub-pixel rendering
     width: '101%', 
     height: '101%',
     transform: 'translate(-50%, -50%)',
     objectFit: 'cover',
     display: 'block',
     zIndex: 1,
-    // Prevents potential browser anti-aliasing issues
     backfaceVisibility: 'hidden',
     WebkitBackfaceVisibility: 'hidden'
   };
@@ -92,12 +84,10 @@ const Hero = () => {
       position: 'relative', 
       width: '100%',
       height: '100vh', 
-      // Ensure the background is black so if the video loads late, it matches
       backgroundColor: '#000', 
       overflow: 'hidden', 
       margin: 0,
       padding: 0,
-      // Fix for some desktop browsers where 100vh includes the scrollbar height
       maxHeight: '100vh' 
     }}>
       {/* Video Background */}
@@ -105,20 +95,17 @@ const Hero = () => {
         ref={videoRef}
         style={{ ...fullScreenMediaStyle, opacity: videoReady ? 1 : 0, transition: 'opacity 300ms ease' }}
         crossOrigin="anonymous"
-        autoPlay 
-        muted 
-        loop 
-        playsInline 
+        autoPlay
+        muted
+        loop
+        playsInline
         preload="auto"
-        onError={handleVideoError}
+        poster="/videos/video.gif"
         onCanPlay={(e) => { handleCanPlay(); setVideoReady(true); }}
         onLoadedData={() => setVideoReady(true)}
       >
-        <source src="https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.webm" type="video/webm" />
-        <source src="https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.mp4" type="video/mp4" />
-        {/* Browser will pick the first supported format */}
         <p style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-          Video not supported — <a href="/videos/mirai_home1.mp4" style={{ color: '#fff', textDecoration: 'underline' }}>download</a>
+          Video not supported — <a href="https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.mp4" style={{ color: '#fff', textDecoration: 'underline' }}>download</a>
         </p>
       </video>
 
