@@ -82,7 +82,6 @@ const Hero = () => {
       <video
         ref={videoRef}
         style={{ ...fullScreenMediaStyle, opacity: videoReady ? 1 : 0, transition: 'opacity 300ms ease' }}
-        src="/videos/mirai_home1.mov"
         autoPlay 
         muted 
         loop 
@@ -92,7 +91,9 @@ const Hero = () => {
         onCanPlay={(e) => { handleCanPlay(); setVideoReady(true); }}
         onLoadedData={() => setVideoReady(true)}
       >
-        <source src="/videos/mirai_home1.mov" type="video/quicktime" />
+        <source src="https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.webm" type="video/webm" />
+        <source src="https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.mp4" type="video/mp4" />
+        {/* Browser will pick the first supported format */}
       </video>
 
       {/* Optional: Subtle Vignette to help the video blend into the next section */}
