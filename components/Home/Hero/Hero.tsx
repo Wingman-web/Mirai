@@ -100,7 +100,6 @@ const Hero = () => {
         loop
         playsInline
         preload="auto"
-        poster="/videos/video.gif"
         onCanPlay={(e) => { handleCanPlay(); setVideoReady(true); }}
         onLoadedData={() => setVideoReady(true)}
       >
