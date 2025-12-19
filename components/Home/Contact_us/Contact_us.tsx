@@ -21,7 +21,7 @@ export default function ContactForm() {
         />
       </div>
       
-      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-r from-black/60 via-black/30 to-transparent" />
       
       <div className="relative z-10 h-full pl-6 lg:pl-12">
         <div className="flex items-center justify-start h-full">

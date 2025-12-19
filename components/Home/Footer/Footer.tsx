@@ -47,7 +47,7 @@ export default function Footer() {
       aria-label="Footer - Pavani Mirai"
     >
       {/* Top shadow for the "rising" effect - full width */}
-      <div className="absolute -top-20 left-0 right-0 h-20 bg-gradient-to-t from-[#050505] to-transparent" />
+      <div className="absolute -top-20 left-0 right-0 h-20 bg-linear-to-t from-[#050505] to-transparent" />
 
       {/* Background image (positioned behind content) */}
       <div className="absolute inset-0 -z-10">
@@ -67,7 +67,7 @@ export default function Footer() {
 
       {/* Black gradient behind content - left side only */}
       <div 
-        className="absolute inset-0 w-1/2 bg-gradient-to-r from-black/80 via-black/50 to-transparent pointer-events-none"
+        className="absolute inset-0 w-1/2 bg-linear-to-r from-black/80 via-black/50 to-transparent pointer-events-none"
         aria-hidden="true"
       />
 
