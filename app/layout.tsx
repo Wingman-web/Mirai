@@ -29,6 +29,10 @@ import logoImg from "../components/Helper/logo.png";
 export const metadata: Metadata = {
   title: "Mirai",
   description: "Welcome to pavani world",
+  icons: {
+    icon: '/favicon.png',
+    apple: '/favicon.png',
+  }
 };
 
 export default function RootLayout({
