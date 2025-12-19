@@ -315,7 +315,7 @@ export default function MiraiPodsSlider() {
         src={ShapeTwo.src}
         alt=""
         aria-hidden="true"
-        className="absolute -top-2 left-1/2 -translate-x-1/2 w-[100vw] max-w-[5000px] md:max-w-[4200px] lg:max-w-[5000px] max-h-[100vh] h-auto object-contain pointer-events-none select-none z-0 opacity-100 drop-shadow-2xl"
+        className="absolute -top-2 left-1/2 -translate-x-1/2 w-screen max-w-1250 md:max-w-1050 lg:max-w-1250 max-h-screen h-auto object-contain pointer-events-none select-none z-0 opacity-100 drop-shadow-2xl"
       />
 
     </section>

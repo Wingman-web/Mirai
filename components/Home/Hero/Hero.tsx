@@ -120,32 +120,7 @@ const Hero = () => {
         zIndex: 5
       }} />
 
-      {/* Scroll Button */}
-      <div style={{ position: 'absolute', bottom: '32px', right: '32px', zIndex: 10 }}>
-        <button
-          onClick={handleScrollToNext}
-          style={{
-            width: '56px', 
-            height: '56px', 
-            borderRadius: '50%', 
-            backgroundColor: '#8B4F5C',
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            border: 'none', 
-            cursor: 'pointer',
-            transition: 'transform 0.2s',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          aria-label="Scroll to next section"
-        >
-          <svg style={{ width: '24px', height: '24px', color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
+
     </section>
   )
 }

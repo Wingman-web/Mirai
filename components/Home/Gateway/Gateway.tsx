@@ -99,7 +99,7 @@ export function RevealZoom({
         </div>
 
         <div className="absolute top-20 right-12 z-20 pointer-events-none">
-          <p className="text-[40px] font-bold">
+          <p ref={textRef} className="text-[40px] font-bold text-black" style={{ color: '#000' }}>
             Where You're Always <br /> In Your Element
           </p>
         </div>
