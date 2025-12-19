@@ -87,16 +87,6 @@ export default function SixthElement() {
     WebkitFontSmoothing: 'antialiased',
   };
 
-  const gothicBodyStyle = {
-    color: '#414141', 
-    fontSize: '20px',
-    fontFamily: '"Century Gothic", "CenturyGothic", AppleGothic, sans-serif',
-    lineHeight: '1.8', 
-    fontWeight: 100,
-    maxWidth: '900px',
-    margin: '0 auto',
-    letterSpacing: '0.02em',
-  };
 
   return (
     <>
@@ -116,19 +106,17 @@ export default function SixthElement() {
                   Where you Live the Sixth Element
                 </h3>
                 
-                {/* Space between paragraphs: INCREASED to mb-32 */}
                 <p 
                   ref={(el) => { if (el) textLinesRef.current[2] = el }} 
-                  style={gothicBodyStyle} 
-                  className="mb-32" 
+                   
+                  className="mb-3.5" 
                 >
-                  Nature crafted five elements - Earth that grounds us. Water that nourishes us. <br className="hidden md:block" /> 
-                  Fire that warms us. Air that breathes through us. Space that holds us.
+                  Nature crafted five elements - Earth that grounds us. Water that nourishes us. Fire that warms us. Air that breathes through us. Space that holds us.
                 </p>
-                
+
                 <p 
                   ref={(el) => { if (el) textLinesRef.current[3] = el }} 
-                  style={gothicBodyStyle}
+                  
                 >
                   With Pavani as the catalyst, the sixth element takes shape when all the elements are brought together in serene harmony. This is how Mirai was birthed - to give meaning to all of these elements and to harness their full potential.
                 </p>

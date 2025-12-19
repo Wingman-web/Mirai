@@ -15,16 +15,26 @@ import SixthElement from './Sixth_Element/Sixth_element'
 const Home = () => {
   return (
     <div>
-      <Hero />
-      <SixthElement />
-      <RevealZoom />
-      <ScrollVideoComponent />
-      <MiraiPodsIntro />
-      <MiraiPodsSlider />
-      <ClubhouseIntro />
-      <MiraiClubhouse />
-      <InteractiveMap />
+      {/* All sections before Contact - wrapped with higher z-index */}
+      <div className="relative z-10 bg-black">
+        <Hero />
+        <SixthElement />
+        <RevealZoom />
+        <ScrollVideoComponent />
+        <MiraiPodsIntro />
+        <MiraiPodsSlider />
+        <ClubhouseIntro />
+        <MiraiClubhouse />
+        <InteractiveMap />
+      </div>
+
+      {/* Contact Form - Fixed position with z-index: 1 */}
       <ContactForm />
+
+      {/* Spacer - Creates scroll room to see the fixed contact section */}
+      <div className="relative h-screen" style={{ zIndex: 0 }} />
+
+      {/* Footer - Scrolls up and covers the contact section with z-index: 10 */}
       <Footer />
     </div>
   )

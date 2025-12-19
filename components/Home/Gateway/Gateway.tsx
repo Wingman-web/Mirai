@@ -98,11 +98,8 @@ export function RevealZoom({
           />
         </div>
 
-        <div className="absolute top-12 right-12 z-20 pointer-events-none">
-          <p 
-            ref={textRef}
-            className="text-[2.5rem] md:text-[4rem] lg:text-[5.5rem] font-bold leading-[0.9] uppercase tracking-tighter text-right drop-shadow-2xl"
-          >
+        <div className="absolute top-20 right-12 z-20 pointer-events-none">
+          <p className="text-[40px] font-bold">
             Where You're Always <br /> In Your Element
           </p>
         </div>

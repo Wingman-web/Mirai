@@ -6,6 +6,7 @@ import TerraImg from './terra.png';
 import AquaImg from './aqua.png';
 import AviaImg from './avia.png';
 import PyroImg from './pyro.png';
+import ShapeTwo from './shape-two.png';
 
 interface Slide {
   id: number;
@@ -59,12 +60,16 @@ const slides: Slide[] = [
 ];
 
 export default function MiraiPodsSlider() {
+  const sectionRef = useRef<HTMLElement | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  // Use browser-friendly timer type so clearInterval works reliably
+  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const createdAtRef = useRef<number>(Date.now());
   const touchStartRef = useRef<number>(0);
+
+  // Reset effect moved below start/stop definitions (kept there only once)
 
   const stopAutoPlay = useCallback(() => {
     if (autoPlayRef.current) {
@@ -73,14 +78,36 @@ export default function MiraiPodsSlider() {
     }
   }, []);
 
-  const startAutoPlay = useCallback(() => {
+  // startAutoPlay accepts an optional force flag to ignore user pause
+  const startAutoPlay = useCallback((force = false) => {
     stopAutoPlay();
-    if (!isPaused) {
+    if (!isPaused || force) {
       autoPlayRef.current = setInterval(() => {
         setCurrentIndex((prev) => (prev < slides.length - 1 ? prev + 1 : 0));
       }, 3000);
     }
   }, [isPaused, stopAutoPlay]);
+
+  // Reset slider to first image when the section enters the viewport (every time)
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          stopAutoPlay();
+          setCurrentIndex(0);
+          // Force restart even if the slider was paused by the user
+          startAutoPlay(true);
+        }
+      },
+      { root: null, threshold: 0.45 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [startAutoPlay, stopAutoPlay]);
 
   const goToSlide = useCallback((index: number) => {
     if (isAnimating || index === currentIndex) return;
@@ -154,6 +181,7 @@ export default function MiraiPodsSlider() {
 
   return (
     <section 
+      ref={sectionRef}
       className="relative w-full h-screen overflow-hidden bg-black"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -246,7 +274,7 @@ export default function MiraiPodsSlider() {
 
       {/* Thumbnail Navigation */}
       <div className="absolute bottom-20 right-8 md:right-15 z-15 flex flex-row gap-3 opacity-100 translate-y-0 transition-all duration-600 ease-in-out delay-400">
-        {slides.slice(0, 3).map((slide, index) => (
+        {slides.map((slide, index) => (
           <div
             key={slide.id}
             onClick={() => {
@@ -281,6 +309,15 @@ export default function MiraiPodsSlider() {
           opacity: 0.8;
         }
       `}</style>
+
+      {/* Decorative shape scoped to the component: centered and scaled so full image is visible */}
+      <img
+        src={ShapeTwo.src}
+        alt=""
+        aria-hidden="true"
+        className="absolute -top-2 left-1/2 -translate-x-1/2 w-[100vw] max-w-[5000px] md:max-w-[4200px] lg:max-w-[5000px] max-h-[100vh] h-auto object-contain pointer-events-none select-none z-0 opacity-100 drop-shadow-2xl"
+      />
+
     </section>
   );
 }

@@ -1,12 +1,25 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Magra } from "next/font/google";
+import localFont from 'next/font/local';
 
-const magra = Magra({
-  variable: "--font-magra",
-  subsets: ["latin"],
-  weight: ["400", "700"],
+const migra = localFont({
+  variable: '--font-magra',
+  src: [
+    { path: '../components/Fonts/migra/Migra-Extralight.woff2', weight: '100', style: 'normal' },
+    { path: '../components/Fonts/migra/Migra-Extrabold.woff2', weight: '800', style: 'normal' }
+  ],
+  display: 'swap'
 });
+
+const century = localFont({
+  variable: '--font-family-century',
+  src: [
+    { path: '../components/Fonts/century-gothic/SansSerifFLF/SansSerifFLF.otf', weight: '300', style: 'normal' },
+    { path: '../components/Fonts/century-gothic/SansSerifFLF/SansSerifBldFLF.otf', weight: '700', style: 'normal' }
+  ],
+  display: 'swap'
+});
+
 import NavContainer from "@/components/Home/Navbar/NavContainer";
 
 // Using system font 'Century Gothic' instead of Geist.
@@ -23,7 +36,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${magra.variable} antialiased `}>
+      <head>
+        {/* Playfair Display (headings) still loaded from Google */}
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className={`${migra.variable} ${century.variable} antialiased `}>
         <NavContainer />
         {children}
       </body>

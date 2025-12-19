@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import BlurText from '../BlurText';
 
 interface AnimatedElementProps {
   delay?: number;
@@ -22,7 +23,9 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({
       ([entry]) => {
         if (entry.isIntersecting) {
           setTimeout(() => setIsVisible(true), delay);
-          observer.disconnect();
+        } else {
+          // allow repeated animations by toggling visibility on leave
+          setIsVisible(false);
         }
       },
       { 
@@ -51,7 +54,17 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({
         ${className}
       `}
     >
-      {children}
+      {React.Children.map(children, (child) => {
+        if (React.isValidElement(child)) {
+          // Only pass `play` to custom React components (non-primitive elements).
+          // Primitive DOM elements have a string `type` (e.g. 'div', 'h2') and should not receive the prop.
+          if (typeof child.type === 'string') return child;
+
+          // Cast to ReactElement with an index signature so TypeScript accepts the extra prop
+          return React.cloneElement(child as React.ReactElement<any>, { play: isVisible });
+        }
+        return child;
+      })}
     </div>
   );
 };
@@ -61,24 +74,25 @@ const MiraiPodsIntro: React.FC = () => {
     /* 1. Added z-index to slide OVER the previous scrubber 
        2. Changed overflow to hidden to stop horizontal scrolling
     */
-    <section className="relative py-16 lg:py-32 bg-white overflow-hidden z-20">
-      <div className="container max-w-[1100px] mx-auto px-4 lg:px-6 relative z-10">
+    <section className="relative mt-0 lg:-mt-2 py-16 lg:py-32 bg-white overflow-hidden z-20">
+      <div className="container max-w-275 mx-auto px-4 lg:px-6 relative z-10">
         <div className="text-center lg:px-20">
           <AnimatedElement delay={0} className="mb-6 pt-3">
-            <h2 className="text-[28px] lg:text-[42px] leading-[1.1] font-semibold text-[#111] mb-4">
+            <h2 className="text-[48px] leading-[1.05] mb-4 migra-heading pods-heading" style={{ fontFamily: 'var(--font-magra)', fontWeight: 100 }}>
               4 Pods <br />
               Conceptualised by Nature,<br />
               Perfected for your Well-being
             </h2>
           </AnimatedElement>
 
-          <AnimatedElement delay={150} className="max-w-[800px] mx-auto">
-            <p className="text-[#6b6b6b] text-base lg:text-lg leading-relaxed">
-              At 220 metres, the elements rise and shape themselves into an elevated world 
-              of leisure and luxury in perfect harmony - the four sculpted Sky Pods. Each 
-              pod here is an ode to the four eternal elements of nature. Beyond them, space 
-              unfolds as the fifth, while Pavani Mirai gives rise to the sixth - life itself.
-            </p>
+          <AnimatedElement delay={150} className="max-w-200 mx-auto">
+            <BlurText
+              text={"At 220 metres, the elements rise and shape themselves into an elevated world of leisure and luxury in perfect harmony - the four sculpted Sky Pods. Each pod here is an ode to the four eternal elements of nature. Beyond them, space unfolds as the fifth, while Pavani Mirai gives rise to the sixth - life itself."}
+              delay={300}
+              animateBy="words"
+              direction="top"
+              className="block text-[#6b6b6b] text-base lg:text-lg leading-relaxed"
+            />
           </AnimatedElement>
         </div>
       </div>

@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
+import ShapeTwo from '../Mirai_Pods_Slider/shape-two.png';
 
 interface Amenity {
   name: string;
@@ -88,13 +90,28 @@ export default function MiraiClubhouse() {
   };
 
   return (
-    <section className="relative bg-gray-900 w-screen h-screen">
-      <div className="w-full h-full px-0">
+    <section className="relative bg-gray-900 w-full h-screen overflow-hidden">
+      <div className="w-full h-full px-0 relative z-10">
         <div 
-          className="grid grid-cols-1 lg:grid-cols-4 h-full bg-cover bg-center transition-all duration-400 ease-in-out"
+          className="relative grid grid-cols-1 lg:grid-cols-4 h-full bg-cover bg-center transition-all duration-400 ease-in-out"
           style={{ backgroundImage: `url('${globalBg}')` }}
           onMouseLeave={handleGlobalLeave}
         >
+          {/* Decorative shape placed inside the grid so it appears above the background image */}
+          <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden">
+          <div className="absolute right-[-20%] -top-2 w-[160vw] md:w-[150vw] lg:w-[140vw]">
+              <Image
+                src={ShapeTwo}
+                alt="Background shape"
+                width={7200}
+                height={5400}
+
+                unoptimized
+                className="w-full h-auto"
+                priority
+              />
+            </div>
+          </div>
           {levels.map((level, levelIndex) => (
             <div
               key={levelIndex}
@@ -130,6 +147,7 @@ export default function MiraiClubhouse() {
           ))}
         </div>
       </div>
+
     </section>
   );
 }

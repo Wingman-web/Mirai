@@ -41,13 +41,35 @@ export default function Footer() {
 
   return (
     <footer
-      className="relative bg-cover bg-center text-[#bfc6cf] py-12 lg:py-24"
-      style={{ backgroundImage: `url(${NightViewImg.src})` }}
+      className="relative text-[#bfc6cf] h-screen flex items-center bg-[#050505]"
+      style={{ zIndex: 10 }}
+      role="contentinfo"
+      aria-label="Footer - Pavani Mirai"
     >
-      {/* Background overlay for readability */}
-      <div className="absolute inset-0 bg-black/50 pointer-events-none" aria-hidden="true" />
-      <section className="container mx-auto px-4 lg:px-6 relative z-10">
-        <div className="max-w-190">
+      {/* Background image (positioned behind content) */}
+      <div className="absolute inset-0 -z-10">
+        <Image
+          src={NightViewImg}
+          alt="Night view"
+          fill
+          priority
+          unoptimized
+          className="object-cover object-center opacity-100"
+          style={{ filter: 'none' }}
+        />
+      </div>
+
+      {/* Background overlay for readability (lighter so image remains visible) */}
+      <div className="absolute inset-0 bg-black/10 pointer-events-none" aria-hidden="true" />
+
+      {/* Left-aligned top shadow placed behind the footer content */}
+      <section className="relative z-10 h-full px-6 lg:px-12">
+        <div
+          className="absolute -top-20 left-6 lg:left-12 h-20 max-w-md w-full bg-gradient-to-t from-[#050505] to-transparent pointer-events-none z-0"
+          aria-hidden="true"
+        />
+        <div className="flex items-center h-full">
+          <div className="max-w-md">
           {/* Logo */}
           <div className={`mb-8 transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <Image
@@ -145,6 +167,7 @@ export default function Footer() {
                 Design &amp; Developed By Wingman Brandworks LLP
               </Link>
             </div>
+          </div>
           </div>
         </div>
       </section>
