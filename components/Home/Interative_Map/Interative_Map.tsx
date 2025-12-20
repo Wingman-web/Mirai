@@ -2,7 +2,23 @@
 /// <reference types="google.maps" />
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
+import dynamic from 'next/dynamic';
+
+const MapClient = dynamic(() => import('./MapClient'), {
+  ssr: false,
+  loading: () => (
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1633.0345929224866!2d78.33338733411476!3d17.415439306851333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb95adcc4e9f31%3A0xa382316aa1d6dfa9!2sMirai!5e0!3m2!1sen!2sin!4v1766211939116!5m2!1sen!2sin"
+      width="100%"
+      height="100%"
+      style={{ border: 0 }}
+      allowFullScreen
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+      title="Pavani Mirai Location"
+    />
+  ),
+});
 
 // Ensure window.google is recognized by TypeScript
 declare global {
@@ -387,117 +403,15 @@ export default function InteractiveMap() {
   const [mapCenter, setMapCenter] = useState<Coordinates>(DEFAULT_CENTER);
   const [mapZoom, setMapZoom] = useState<number>(15);
   const [selectedDescription, setSelectedDescription] = useState<string>('');
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const polylineRef = useRef<google.maps.Polyline | null>(null);
-  const polylineBorderRef = useRef<google.maps.Polyline | null>(null);
+  // Map-specific logic is moved to a client-only component (`MapClient`) to avoid SSR resolution of browser-only packages.
 
-  // Clean up polylines
-  const clearPolylines = useCallback(() => {
-    if (polylineRef.current) {
-      polylineRef.current.setMap(null);
-      polylineRef.current = null;
-    }
-    if (polylineBorderRef.current) {
-      polylineBorderRef.current.setMap(null);
-      polylineBorderRef.current = null;
-    }
-  }, []);
 
-  // Effect to clear polylines when component unmounts
-  useEffect(() => {
-    return () => {
-      clearPolylines();
-    };
-  }, [clearPolylines]);
-
-  // Load Google Maps
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-    libraries: LIBRARIES,
-  });
-
-  const onMapLoad = useCallback((map: google.maps.Map) => {
-    mapRef.current = map;
-  }, []);
 
   const handleLocationClick = (location: LocationData) => {
-    // Clear existing polylines first
-    clearPolylines();
-    
-    // Set new location
+    // Only update state in parent; MapClient will react to selectedLocation changes and update view.
     setSelectedLocation(location);
-    const coords = { lat: location.lat, lng: location.lng };
     setSelectedDescription(DESCRIPTIONS[location.name] || DEFAULT_DESCRIPTION);
-
-    // Create new polylines if map is loaded
-    if (mapRef.current && window.google) {
-      const path = [DEFAULT_CENTER, coords];
-      
-      // Create border polyline
-      polylineBorderRef.current = new window.google.maps.Polyline({
-        path: path,
-        strokeColor: '#78252f',
-        strokeOpacity: 0.8,
-        strokeWeight: 4,
-        geodesic: true,
-        zIndex: 0,
-        map: mapRef.current,
-      });
-      
-      // Create main polyline
-      polylineRef.current = new window.google.maps.Polyline({
-        path: path,
-        strokeColor: '#FFFFFF',
-        strokeOpacity: 1,
-        strokeWeight: 2,
-        geodesic: true,
-        zIndex: 1,
-        map: mapRef.current,
-      });
-    }
-
-    // Determine zoom level based on distance category
-    const group = LOCATION_GROUPS.find((g) => g.locations.some((l) => l.name === location.name));
-    let newZoom = 15;
-    if (group) {
-      switch (group.title) {
-        case 'Walk':
-          newZoom = 17;
-          break;
-        case '2 Min Drive':
-          newZoom = 16;
-          break;
-        case '5 Mins Drive':
-          newZoom = 15;
-          break;
-        case '10 Mins Drive':
-          newZoom = 14;
-          break;
-        case '20 Mins Drive':
-          newZoom = 13;
-          break;
-        case '30 Mins Drive':
-          newZoom = 11;
-          break;
-        default:
-          newZoom = 15;
-      }
-    }
-
-    setMapZoom(newZoom);
-
-    // Calculate the center point between home and destination
-    const centerLat = (DEFAULT_CENTER.lat + coords.lat) / 2;
-    const centerLng = (DEFAULT_CENTER.lng + coords.lng) / 2;
-    setMapCenter({ lat: centerLat, lng: centerLng });
-
-    // Fit bounds to show both markers
-    if (mapRef.current) {
-      const bounds = new window.google.maps.LatLngBounds();
-      bounds.extend(DEFAULT_CENTER);
-      bounds.extend(coords);
-      mapRef.current.fitBounds(bounds, { top: 50, right: 350, bottom: 50, left: 50 });
-    }
+    setExpandedAccordion('');
   };
 
   const toggleAccordion = (title: string) => {
@@ -505,31 +419,13 @@ export default function InteractiveMap() {
   };
 
   const resetMap = () => {
-    // Clear polylines immediately
-    clearPolylines();
-    
-    // Clear location and other state
+    // Clear selection; MapClient will reset its view on null.
     setSelectedLocation(null);
     setSelectedDescription('');
     setExpandedAccordion('');
-
-    // Reset map view
-    setMapCenter(DEFAULT_CENTER);
-    setMapZoom(15);
-
-    if (mapRef.current) {
-      mapRef.current.panTo(DEFAULT_CENTER);
-      mapRef.current.setZoom(15);
-    }
   };
 
-  if (loadError) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-500">Error loading maps. Please check your API key.</p>
-      </div>
-    );
-  }
+
 
   return (
     <section className="bg-white">
@@ -602,54 +498,7 @@ export default function InteractiveMap() {
           {/* Right Column - Full Width Map with Overlay Panel */}
           <div className="relative lg:col-span-2">
             <div className="relative w-full h-[650px] rounded-lg overflow-hidden shadow-xl">
-              {!isLoaded ? (
-                // Show iframe as fallback/loading state
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1633.0345929224866!2d78.33338733411476!3d17.415439306851333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb95adcc4e9f31%3A0xa382316aa1d6dfa9!2sMirai!5e0!3m2!1sen!2sin!4v1766211939116!5m2!1sen!2sin"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Pavani Mirai Location"
-                />
-              ) : (
-                <GoogleMap
-                  mapContainerStyle={mapContainerStyle}
-                  center={mapCenter}
-                  zoom={mapZoom}
-                  onLoad={onMapLoad}
-                  options={mapOptions}
-                >
-                  {/* Pavani Mirai Marker (Home) */}
-                  <Marker
-                    position={DEFAULT_CENTER}
-                    icon={{
-                      url: HOME_MARKER_ICON,
-                      scaledSize: new window.google.maps.Size(28, 28),
-                      anchor: new window.google.maps.Point(14, 14),
-                    }}
-                    title="Pavani Mirai"
-                  />
-
-                  {/* Polylines are now managed via refs and Google Maps API directly */}
-
-                  {/* Selected Location Marker - only show when a location is selected */}
-                  {selectedLocation && (
-                    <Marker
-                      position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
-                      icon={{
-                        url: LOCATION_MARKER_ICON_SMALL,
-                        scaledSize: new window.google.maps.Size(24, 36),
-                        anchor: new window.google.maps.Point(12, 36),
-                      }}
-                      title={selectedLocation.name}
-                      zIndex={100}
-                    />
-                  )}
-                </GoogleMap>
-              )}
+              <MapClient selectedLocation={selectedLocation} />
 
               {/* Selection Panel Overlay */}
               <SelectionPanel
