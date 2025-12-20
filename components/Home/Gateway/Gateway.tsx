@@ -77,7 +77,7 @@ export function RevealZoom({
   const resolvedZoomSrc = typeof zoomTo === 'string' ? zoomTo : zoomTo.src;
 
   return (
-    <section ref={wrapperRef} className="relative w-full bg-black" style={{ zIndex: 50 }}>
+    <section id="gateway-trigger" ref={wrapperRef} className="relative w-full bg-black" style={{ zIndex: 50 }}>
       <div ref={containerRef} className="relative w-full h-screen overflow-hidden">
         
         <div className="absolute inset-0 w-full h-full flex items-center justify-center">

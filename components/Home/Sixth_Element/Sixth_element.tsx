@@ -15,8 +15,9 @@ export default function SixthElement() {
   const containerRef = useRef<HTMLDivElement>(null);
   const textLinesRef = useRef<(HTMLParagraphElement | HTMLHeadingElement)[]>([]);
   
+  // Initially don't show the section until the user scrolls to it
   const [processedImage, setProcessedImage] = useState<string | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   const processImage = useCallback((img: HTMLImageElement) => {
     const canvas = canvasRef.current;
@@ -45,36 +46,125 @@ export default function SixthElement() {
   }, []);
 
   useEffect(() => {
+    // Process the image in background and replace processedImage when ready;
     const img = new window.Image();
-    img.crossOrigin = "anonymous";
+    img.crossOrigin = 'anonymous';
     img.onload = () => {
       const dataUrl = processImage(img);
-      if (dataUrl) { setProcessedImage(dataUrl); setIsLoaded(true); }
+      if (dataUrl) { setProcessedImage(dataUrl); }
+      else { setProcessedImage('/text_cloud.png'); }
+    };
+    img.onerror = () => {
+      // fallback
+      setProcessedImage('/text_cloud.png');
     };
     img.src = '/text_cloud.png';
   }, [processImage]);
 
+  const [wantedReveal, setWantedReveal] = useState(false);
+
+  // Reveal the section only after the user scrolls to it, but ensure the image is ready
   useEffect(() => {
-    if (!isLoaded || !sectionRef.current || !containerRef.current) return;
+    if (!sectionRef.current) return;
+    const revealTrigger = ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: 'top 75%',
+      // Use a function so we can reference the ScrollTrigger instance via `this` and avoid TDZ
+      onEnter: function(this: any) {
+        // Make the container present but keep it transparent so the timeline can animate it in
+        try { gsap.set(containerRef.current, { display: 'flex', opacity: 0, zIndex: 40, pointerEvents: 'none' }); } catch (e) {}
+        // Ensure we have a fallback image available; if one already exists, reveal immediately.
+        setProcessedImage((prev) => {
+          if (prev) { setRevealed(true); }
+          else { setWantedReveal(true); }
+          return prev ?? '/text_cloud.png';
+        });
+        try { this.kill(); } catch (e) {}
+      }
+    });
+    return () => { try { revealTrigger.kill(); } catch (e) {} };
+  }, []);
+
+  // When image becomes available and a reveal was requested, finalize the reveal
+  useEffect(() => {
+    if (wantedReveal && processedImage) {
+      setRevealed(true);
+      setWantedReveal(false);
+    }
+  }, [wantedReveal, processedImage]);
+
+  useEffect(() => {
+    if (!revealed || !sectionRef.current || !containerRef.current) return;
+    // We'll create an auxiliary ScrollTrigger that watches the Gateway section and forces
+    // the Sixth Element behind it as soon as Gateway reaches the top of the viewport.
+    let gatewayTriggerRef: any = null;
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top 85%", 
-          end: "bottom top",
-          scrub: 1.2,
-          onLeave: () => gsap.set(containerRef.current, { display: 'none' }),
-          onEnterBack: () => gsap.set(containerRef.current, { display: 'flex' }),
+          start: "top 60%",
+          // end when the Gateway section reaches the top of the viewport so Sixth Element won't appear after Gateway
+          endTrigger: '#gateway-trigger',
+          end: 'top top',
+          // increase scrub so animation feels smoother over longer scroll
+          scrub: 1.8,
+          // Ensure the container is visible and reset visual state when entering
+          onEnter: () => { gsap.set(containerRef.current, { display: 'flex', opacity: 1, scale: 1, zIndex: 40, pointerEvents: 'none' }) },
+          onEnterBack: () => { gsap.set(containerRef.current, { display: 'flex', opacity: 1, scale: 1, zIndex: 40, pointerEvents: 'none' }) },
+          // When leaving, keep it visible but move it behind the next content by lowering z-index
+          onLeave: () => { gsap.set(containerRef.current, { zIndex: 0, opacity: 1, pointerEvents: 'none' }) }
         }
       });
-      tl.fromTo(containerRef.current, { opacity: 0 }, { opacity: 1, duration: 0.4 })
-        .fromTo(imageRef.current, { scale: 1.2, opacity: 0 }, { scale: 1, opacity: 0.95, ease: "power1.out", duration: 0.8 }, 0)
-        .fromTo(textLinesRef.current, { y: 35, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.2 }, 0.2)
-        .to({}, { duration: 0.8 }) 
-        .to(containerRef.current, { opacity: 0, scale: 1.03, duration: 0.4, ease: "power2.in" });
-    }, sectionRef);
-    return () => ctx.revert();
-  }, [isLoaded]);
+
+      // Create a defensive ScrollTrigger bound to the Gateway element that forces z-index to 0
+      const gatewayEl = document.getElementById('gateway-trigger');
+      if (gatewayEl) {
+        gatewayTriggerRef = ScrollTrigger.create({
+          trigger: gatewayEl,
+          start: 'top top',
+          onEnter: () => {
+            // Hide the Sixth Element overlay so Gateway is fully visible and on top
+            try { gsap.set(containerRef.current, { display: 'none' }); } catch (e) {}
+            gsap.set(gatewayEl, { position: 'relative', zIndex: 200, transform: 'translateZ(0)' });
+          },
+          onLeaveBack: () => {
+            // Restore Sixth Element visibility only if it was revealed by scroll
+            try {
+              if (revealed) {
+                gsap.set(containerRef.current, { display: 'flex', opacity: 1, zIndex: 40, pointerEvents: 'none', transform: 'none' });
+              }
+            } catch (e) {}
+            gsap.set(gatewayEl, { zIndex: 50, transform: 'none' });
+          },
+        });
+      }
+
+      // Build the animation timeline inside the same GSAP context callback
+      tl.fromTo(containerRef.current, { opacity: 0 }, { opacity: 1, duration: 0.6 })
+        .fromTo(imageRef.current, { scale: 1.2, opacity: 0 }, { scale: 1, opacity: 0.95, ease: "power1.out", duration: 1.2 }, 0)
+        .fromTo(textLinesRef.current, { y: 35, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.25 }, 0.2)
+        // add a longer pause in the timeline so the element remains visible for longer while scrolling
+        .to({}, { duration: 2.0 })
+        // Instead of hiding, move the element slightly and then push it behind by lowering z-index
+        .to(containerRef.current, { scale: 1.03, duration: 0.6, ease: "power2.in" })
+        .call(() => { gsap.set(containerRef.current, { zIndex: 0, pointerEvents: 'none' }) });
+
+      // Clean up the auxiliary gateway trigger on unmount instead of using ctx.add
+      // (avoids type/signature issues with ctx.add callbacks)
+
+    }, sectionRef.current);
+
+    return () => {
+      if (gatewayTriggerRef) {
+        try { gatewayTriggerRef.kill(); } catch (e) { /* ignore */ }
+      }
+      ctx.revert();
+    };
+  }, [revealed]);
+
+  // Removed temporary insertBefore debug wrapper — behavior now relies on normal DOM APIs.
+  // Any persistent insert-before issues should be fixed at the source (e.g. by ensuring
+  // reference nodes are children before inserting).
 
   const migraHeaderStyle = {
     color: '#78252f',
@@ -87,14 +177,14 @@ export default function SixthElement() {
     WebkitFontSmoothing: 'antialiased',
   };
 
-  // Don't render the section until processed image is ready to avoid the component being visible during page load
-  if (!isLoaded) return null;
+  // The section is always present in the DOM but hidden until 'revealed' becomes true.
+  // This allows Hero scrollTo to find the element while preventing it from appearing on initial load.
 
   return (
     <>
       <canvas ref={canvasRef} style={{ display: 'none' }} aria-hidden="true" />
-      <section ref={sectionRef} className="relative w-full h-[180vh] bg-black" style={{ zIndex: 40 }}>
-        <div ref={containerRef} className="fixed inset-0 w-full h-full flex items-center justify-center pointer-events-none">
+      <section id="sixth-element-trigger" ref={sectionRef} className="relative w-full h-[180vh] bg-black" style={{ zIndex: 40 }}>
+        <div ref={containerRef} style={{ display: 'none', opacity: 0, zIndex: 40 }} className="fixed inset-0 w-full h-full flex items-center justify-center pointer-events-none">
           {processedImage && (
             <>
               <img ref={imageRef} src={processedImage} alt="" className="absolute inset-0 w-full h-full object-cover" />

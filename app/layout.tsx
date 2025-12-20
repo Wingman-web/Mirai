@@ -22,6 +22,7 @@ const century = localFont({
 
 import NavContainer from "@/components/Home/Navbar/NavContainer";
 import LoadingOverlay from '@/components/Common/LoadingOverlay';
+import SafeDomPatches from '@/components/Common/SafeDomPatches';
 import logoImg from "../components/Helper/logo.png";
 
 // Using system font 'Century Gothic' instead of Geist.
@@ -52,8 +53,10 @@ export default function RootLayout({
       </head>
       <body className={`${migra.variable} ${century.variable} antialiased `}>
         {/* Server-rendered black overlay to show immediately during initial load */}
-        <div id="initial-loading-overlay" className="fixed inset-0 bg-black z-[9999] transition-opacity duration-500" />
+        <div id="initial-loading-overlay" className="fixed inset-0 bg-black z-9999 transition-opacity duration-500" />
         <NavContainer />
+        {/* Safe DOM patches that run early on the client to prevent insertBefore runtime errors */}
+        <SafeDomPatches />
         {children}
         <LoadingOverlay />
       </body>
