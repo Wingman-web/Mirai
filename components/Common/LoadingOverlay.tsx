@@ -4,29 +4,21 @@ import { useEffect } from 'react';
 
 export default function LoadingOverlay() {
   useEffect(() => {
-    const overlay = document.getElementById('initial-loading-overlay');
-    if (!overlay) return;
+    const el = document.getElementById('initial-loading-overlay');
+    if (!el) return;
 
-    const hide = () => {
-      overlay.classList.add('opacity-0');
-      // allow transition to finish before removing
-      setTimeout(() => {
-        overlay.remove();
-      }, 500);
-    };
+    // Fade out the server-rendered overlay
+    el.style.transition = 'opacity 500ms ease, visibility 500ms ease';
+    el.style.opacity = '0';
+    el.style.visibility = 'hidden';
 
-    if (document.readyState === 'complete') {
-      hide();
-    } else {
-      window.addEventListener('load', hide);
-      // safety: hide after 10s in case load never fires
-      const timeout = setTimeout(hide, 10000);
-      return () => {
-        window.removeEventListener('load', hide);
-        clearTimeout(timeout);
-      };
-    }
+    // Remove element from DOM after animation
+    const t = setTimeout(() => {
+      if (el.parentNode) el.parentNode.removeChild(el);
+    }, 600);
+
+    return () => clearTimeout(t);
   }, []);
 
-  return null;
+  return null; // This component doesn't render anything client-side; it only controls the server overlay.
 }
