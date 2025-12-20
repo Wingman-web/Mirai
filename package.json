@@ -1,0 +1,7 @@
+{
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "dev": "cd next_next && npm install && npm run dev"
+  }
+}
