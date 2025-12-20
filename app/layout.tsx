@@ -21,6 +21,7 @@ const century = localFont({
 });
 
 import NavContainer from "@/components/Home/Navbar/NavContainer";
+import LoadingOverlay from '@/components/Common/LoadingOverlay';
 import logoImg from "../components/Helper/logo.png";
 
 // Using system font 'Century Gothic' instead of Geist.
@@ -46,8 +47,11 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
       </head>
       <body className={`${migra.variable} ${century.variable} antialiased `}>
+        {/* Server-rendered black overlay to show immediately during initial load */}
+        <div id="initial-loading-overlay" className="fixed inset-0 bg-black z-[9999] transition-opacity duration-500" />
         <NavContainer />
         {children}
+        <LoadingOverlay />
       </body>
     </html>
   );

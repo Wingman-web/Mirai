@@ -87,6 +87,8 @@ export default function SixthElement() {
     WebkitFontSmoothing: 'antialiased',
   };
 
+  // Don't render the section until processed image is ready to avoid the component being visible during page load
+  if (!isLoaded) return null;
 
   return (
     <>

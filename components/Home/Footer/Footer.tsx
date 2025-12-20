@@ -15,9 +15,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   useEffect(() => {
-    // Trigger animations on mount
-    setIsVisible(true);
-
+    // Wait for full page load before showing the footer to avoid flash during page load
     const handleScroll = () => {
       const scroll = window.pageYOffset || document.documentElement.scrollTop;
       const height = document.documentElement.scrollHeight - window.innerHeight;
@@ -27,10 +25,21 @@ export default function Footer() {
       setShowBackToTop(scroll > 50);
     };
 
+    const onLoad = () => setIsVisible(true);
+
+    if (document.readyState === 'complete') {
+      onLoad();
+    } else {
+      window.addEventListener('load', onLoad);
+    }
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll(); // Initial check
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('load', onLoad);
+    };
   }, []);
 
   const scrollToTop = () => {

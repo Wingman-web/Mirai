@@ -39,23 +39,16 @@ const slides: Slide[] = [
 
   {
     id: 3,
-    image: AviaImg.src,
-    label: 'Avia Pod',
-    title: 'Soaring Above\nthe Ordinary'
-  },
-
-  {
-    id: 4,
     image: PyroImg.src,
     label: 'Pyro Pod',
     title: 'Ignite Your\nPassion'
   },
 
   {
-    id: 5,
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&h=1080&fit=crop&q=90',
-    label: 'Aether',
-    title: 'Beyond the\nPhysical Realm'
+    id: 4,
+    image: AviaImg.src,
+    label: 'Avia Pod',
+    title: 'Soaring Above\nthe Ordinary'
   }
 ];
 

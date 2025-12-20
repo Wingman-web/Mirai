@@ -10,6 +10,7 @@ const Nav = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const [hoveredLink, setHoveredLink] = useState<number | null>(null)
+  const [isPageReady, setIsPageReady] = useState(false)
   const containerRef = useRef(null)
   const STAR_COUNT = 8
 
@@ -18,6 +19,14 @@ const Nav = () => {
       const script = document.createElement('script')
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js'
       document.head.appendChild(script)
+
+      const onLoad = () => setIsPageReady(true)
+      if (document.readyState === 'complete') onLoad()
+      else window.addEventListener('load', onLoad)
+
+      return () => {
+        window.removeEventListener('load', onLoad)
+      }
     }
   }, [])
 
@@ -42,7 +51,7 @@ const Nav = () => {
 
   return (
     <>
-<nav className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${isOpen ? 'bg-black' : 'bg-transparent'}`}>
+<nav className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${isOpen ? 'bg-black' : 'bg-transparent'} ${isPageReady ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute left-8 top-1/2 -translate-y-1/2 z-50">
           <Logo isOpen={isOpen} />
         </div>
