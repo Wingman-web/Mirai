@@ -51,13 +51,21 @@ const Hero = () => {
       { src: 'https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.mp4', type: 'video/mp4' }
     ]
 
-    const fallback = videoEl.querySelector('p')
-
     sources.forEach(({ src, type }) => {
       const srcEl = document.createElement('source')
       srcEl.src = src
       srcEl.type = type
-      videoEl.insertBefore(srcEl, fallback || null)
+      try {
+        // Insert at the beginning to ensure sources appear before any fallback content.
+        if (videoEl.firstChild) {
+          videoEl.insertBefore(srcEl, videoEl.firstChild)
+        } else {
+          videoEl.appendChild(srcEl)
+        }
+      } catch (e) {
+        // Fallback to append to avoid breaking rendering
+        try { videoEl.appendChild(srcEl) } catch (err) { /* ignore */ }
+      }
     })
 
     videoEl.load()
