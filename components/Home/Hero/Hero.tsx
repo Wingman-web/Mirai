@@ -47,8 +47,7 @@ const Hero = () => {
     const videoEl = videoRef.current
 
     const sources = [
-      { src: 'https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.webm', type: 'video/webm' },
-      { src: 'https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.mp4', type: 'video/mp4' }
+      { src: '/videos/mirai_home1.mp4', type: 'video/mp4' }
     ]
 
     sources.forEach(({ src, type }) => {
@@ -112,7 +111,7 @@ const Hero = () => {
         onLoadedData={() => setVideoReady(true)}
       >
         <p style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-          Video not supported — <a href="https://knbjvd97qa5keve4.public.blob.vercel-storage.com/mirai/mirai_home1.mp4" style={{ color: '#fff', textDecoration: 'underline' }}>download</a>
+          Video not supported — <a href="/videos/mirai_home1.mp4" style={{ color: '#fff', textDecoration: 'underline' }}>download</a>
         </p>
       </video>
 
