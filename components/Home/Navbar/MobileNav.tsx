@@ -35,7 +35,7 @@ const MobileNav = () => {
   return (
     <>
       <nav className={`relative z-50 transition-colors duration-300 ${isOpen ? 'bg-black' : 'bg-transparent'}`}>
-        <div className="absolute left-8 top-1/2 -translate-y-1/2 z-50">
+        <div className="absolute left-1/2 top-4 -translate-x-1/2 z-50">
           <Logo isOpen={isOpen} />
         </div>
         <div className="absolute right-8 top-1/2 -translate-y-1/2 z-50">
